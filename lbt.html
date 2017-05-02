@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>大图</title>
+	<style>
+		*{
+			margin:0;
+			padding:0;
+		}
+		#outer{
+			width: 800px;
+			height: 500px;
+			margin:100px auto;
+			overflow: hidden;
+			position: relative;
+		}
+		#inner{
+			height: 500px;
+			position: absolute;
+			left: 0;
+			top: 0;
+			/* transition: all 0.5s; */
+		}
+		#inner img{
+			float: left;
+			width: 800px;
+			height: 500px;
+		}
+		#btn-box{
+			width: 100%;
+			position: absolute;
+			left: 0;
+			bottom: 10px;
+			text-align: center;
+		}
+		#btn-box span{
+			display: inline-block;
+			width: 30px;
+			height: 30px;
+			border-radius: 50%;
+			background-color: #fff;
+			text-align: center;
+			line-height: 30px;
+			font-size: 18px;
+			cursor: pointer;
+		}
+		#btn-box span.active{
+			color: #fff;
+			background-color: red;
+		}
+		#nextBtn,#prevBtn{
+			position: absolute;
+			height: 100%;
+			width: 50px;
+			background-color: rgba(0,0,0,.5);
+			text-align: center;
+			line-height: 500px;
+			font-size: 40px;
+			color: #fff;
+			opacity: 0;
+			transition: all 0.5s;
+			cursor: pointer;
+		}
+		#nextBtn{
+			right: 0;
+		}
+		#prevBtn{
+			left: 0;
+		}
+	</style>
+</head>
+<body>
+	<div id="outer">
+		<div id="inner">
+			<img src="img/1.jpg" alt="">
+			<img src="img/2.jpg" alt="">
+			<img src="img/3.jpg" alt="">
+			<img src="img/4.jpg" alt="">
+			<img src="img/5.jpg" alt="">
+			<img src="img/6.jpg" alt="">
+			<img src="img/1.jpg" alt="">
+		</div>
+		<p id="btn-box">
+			<span class="active">1</span>
+			<span>2</span>
+			<span>3</span>
+			<span>4</span>
+			<span>5</span>
+			<span>6</span>
+		</p>
+		<div id="nextBtn">&gt;</div>
+		<div id="prevBtn">&lt;</div>
+	</div>
+	<script src="js/tween.js"></script>
+	<script>
+		var outer = document.getElementById('outer');
+		var imgs = document.getElementsByTagName('img');
+		var inner = document.getElementById('inner');
+		var btnbox = document.getElementById('btn-box');
+		var btns = btnbox.getElementsByTagName('span');
+		var nextBtn = document.getElementById('nextBtn');
+		var prevBtn = document.getElementById('prevBtn');
+
+		var pieceWhidth = imgs[0].offsetWidth;
+		inner.style.width = pieceWhidth * imgs.length + 'px';
+		var time = null;
+		var time1 = null;
+		var control = true;
+		var index = 0;
+		function tab(){
+			clearInterval(time);
+			/*if(index>=imgs.length){
+				index = 0;
+			}
+			if(index < 0){
+				index = imgs.length-2;
+			}*/
+			var t=0;
+			var maxT=80;
+			var start = inner.offsetLeft;
+			var end = - pieceWhidth * index;
+			var chenge = end - start;
+			clearInterval(time1);
+			time1 = setInterval(function(){
+				t++;
+				if (t >= maxT) {
+					clearInterval(time1);
+					control = true;
+				}
+				inner.style.left = Tween.Bounce.easeOut(t,start,chenge,maxT) + 'px';
+			},10);
+			for (var i = 0; i < btns.length; i++) {
+				btns[i].className = '';
+			}
+			if (index >= btns.length) {
+				btns[0].className = 'active';
+			}else{
+				btns[index].className = 'active';
+			}
+			time = setInterval(next,3000);
+		}
+		function next(){
+			index++;
+			if (index >= imgs.length) {
+				index = 1;
+				inner.style.left = 0;
+			}
+			tab();
+		}
+		function prev(){
+			index--;
+			if (index < 0) {
+				index = btns.length-1;
+				inner.style.left = - pieceWhidth * btns.length + 'px';
+			}
+			tab();
+		}
+		time = setInterval(next,3000);
+		for (var i = 0; i < btns.length; i++) {
+			btns[i].index = i;
+			btns[i].onclick = function(){
+				if (this.index == 0 && index == btns.length) {
+					index = btns.length;
+				}else if(this.index == 0 && index == (btns.length-1)){
+					next();
+				}else if ((this.index == btns.length-1) && index == 0) {
+					prev();
+				}else{
+					index = this.index;
+				}
+				tab();
+			}
+		}
+		outer.onmouseover = function(){
+			nextBtn.style.opacity = 1;
+			prevBtn.style.opacity = 1;
+		}
+		outer.onmouseout = function(){
+			nextBtn.style.opacity = 0;
+			prevBtn.style.opacity = 0;
+		}
+		nextBtn.onclick = function(){
+			if (control) {next();}
+			control = false;
+		}
+		prevBtn.onclick = function(){
+			if (control) {prev();}
+			control = false;
+		}
+	</script>
+</body>
+</html>
